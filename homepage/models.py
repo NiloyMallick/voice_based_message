@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User as U
+from django.contrib.auth.models import User
 
 class UserDetails(models.Model):
     id = models.AutoField(primary_key=True)
@@ -19,13 +19,16 @@ class Compose:
     subject : str
     body : str
 
-class User(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
 
 
 class Message(models.Model):
     id = models.AutoField(primary_key=True)
-    from_message = models.ForeignKey(U, on_delete=models.CASCADE, related_name= "message_from")
-    to_message =  models.ForeignKey(User, on_delete=models.CASCADE, related_name="message_to")
+    message_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name= "message_from")
+    message_to = models.ManyToManyField(User, related_name= "message_to")
     messsage = models.JSONField()
+
+
+# class UserMessage(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     name = models.CharField(max_length=100)
+    # messsage = models.JSONField() 

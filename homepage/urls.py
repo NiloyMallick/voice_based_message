@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^sent/$', views.sent_view, name="sent"),
     url(r'^trash/$', views.trash_view, name="trash"),
     url(r'^options/$', views.options_view, name="options"),
-    url(r'^group/$', views.group_create_view, name="group")
+    url(r'^group/$', views.group_create_view, name="group"),
+    url(r'^message/$', views.get_message, name="get_message"),
    
 ]

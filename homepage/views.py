@@ -17,7 +17,8 @@ from email.mime.base import MIMEBase
 from email import encoders
 from django.http import JsonResponse
 import re
-
+from .models import *
+from django.shortcuts import get_object_or_404
 
 file = "good"
 i="0"
@@ -822,17 +823,19 @@ def trash_view(request):
     elif request.method == 'GET':
         return render(request, 'homepage/trash.html')
 
+
+
+
+
 def group_create_view(request):
     global i, addr, passwrd, conn
-    print(request.user)
     if request.method == 'POST':
-        print(request.user)
         text = "You have reached your create group page. Enter group member email to add group"
         texttospeech(text, file + i)
         i = i + str(1)
         flag = True
         flag1 = True
-        toaddr = list()
+        toaddr = ['c', 'b']
         while flag1:
             while flag:
                 texttospeech("enter receiver's email address:", file + i)
@@ -887,6 +890,51 @@ def group_create_view(request):
                 i = i + str(1)
             else:
                 flag = False
+            msg['Body'] = body
+
+            print(msg)
+        
+        msg = {
+            "Subjject" : "Test",
+            "Body" : "Hi there"
+        }
+
+        def adduser(name):
+            user= get_object_or_404(User.name == name)
+            print(user)
+
+        try:
+            users = User.objects.filter(name__in=toaddr)
+            message = Message.objects.create(message_from=request.user, messsage=msg)
+            message.message_to.set(users)
+            # message.from_message = (request.user)
+            # message.messsage = msg
+            # message.save()
+        except Exception as e:
+            print(e)
+
+        # message = Message.objects.create(from_message= request.user, to_message=User.objects.filter(name__in=toaddr), message=msg)
         return JsonResponse({'result': 'success'})
     elif request.method == 'GET':
         return render(request, 'homepage/group.html')
+
+
+
+
+
+def get_message(request):
+    global i, addr, passwrd, conn
+    if request.method == 'POST':
+        text = "You have reached your create group page. Enter group member email to add group"
+        texttospeech(text, file + i)
+        i = i + str(1)
+        flag = True
+        flag1 = True
+        toaddr = ['c', 'b']
+        
+    
+        return JsonResponse({'result': 'success'})
+    elif request.method == 'GET':
+        x = Message.objects.filter(message_to__username='niloy').all()
+        return render(request, 'homepage/message.html', {"message": x})
+

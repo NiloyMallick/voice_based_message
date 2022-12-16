@@ -1,0 +1,38 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+	<body onmousedown = "GetAllMessage(event)">
+		<nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-dark navbar-custom">
+			<div class="container"><a class="navbar-brand" style="font-size:150%;">VOICE BASED EMAIL FOR THE BLIND</a>
+				
+			</div>
+		</nav>
+		<header class="masthead text-left text-white">
+        </header>
+        {% for m in message %}
+        <h1>{{m.message}} p</h1>
+        {% endfor %}
+        <footer class="py-5 bg-black">
+			<div class="container">
+				<p class="text-center text-white m-0 small">Copyright&nbsp;© Voice Based Email&nbsp;</p>
+			</div>
+		</footer>
+	<script>
+	function GetAllMessage(event){
+		$.ajax({
+        url: "{% url 'homepage:get_message' %}",
+        method: 'POST',
+        data: { 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+        // success: function (data) {
+		// 	if(data.result == 'success'){
+		// 		window.location = "{% url 'homepage:options' %}";
+		// 	}
+		// 	else if(data.result == 'logout'){
+		// 		window.location = "{% url 'homepage:login' %}";
+		// 	}
+        // }
+    });
+	}
+	</script>
+
+{% endblock %}
