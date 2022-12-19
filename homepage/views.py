@@ -666,21 +666,15 @@ def group_create_view(request):
                 flag = False
         msg = body
         print(msg)
-    
 
-        # def adduser(name):
-        #     user= get_object_or_404(User.username == name)
-        #     print(user)
-    
         try:
-            # login_user= User.objects.filter(username=request.user).first()
+ 
             users = User.objects.filter(username__in=toaddr)
             message = Message.objects.create(message_from=request.user, messsage=msg, subject=Subject)
             message.message_to.set(users)
 
         except Exception as e:
             print(e)
-
         # message = Message.objects.create(from_message= request.user, to_message=User.objects.filter(name__in=toaddr), message=msg)
         return JsonResponse({'result': 'success'})
     elif request.method == 'GET':
