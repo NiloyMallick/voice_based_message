@@ -4,11 +4,11 @@
 
 	<body onmousedown = "SendPostRequestOptions(event)">
 		<nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-dark navbar-custom">
-			<div class="container"><a class="navbar-brand" style="font-size:150%;">VOICE BASED EMAIL FOR THE BLIND</a>
+			<div class="container"><a class="navbar-brand" style="font-size:150%;">Connect Blindly</a>
 				
 			</div>
 		</nav>
-		<header class="masthead text-left text-white">
+		<header class="masthead text-left text-white" style="background: linear-gradient(0deg,#e6e3e4,#25b6c0)!important;;">
 			<div class="masthead-content">
 				<div class="container" >
 					<center>
@@ -29,7 +29,7 @@
 								<input href="compose.html"class="btn btn-primary btn-xl rounded-pill mt-5"
 								class="button" role="button"
 								style="width: 250px; background-color: black;" type="submit" 
-								value="COMPOSE"  style="background-color: black;"></a>
+								value="Send Message"  style="background-color: black;"></a>
 						</td>
 					</tr>
 						
@@ -39,7 +39,7 @@
 								<input href="inbox.html"class="btn btn-primary btn-xl rounded-pill mt-5"
 								 role="button"
 								 style="width: 250px; background-color: black;" type="submit" 
-								value="INBOX" ></a>
+								value="Chat" ></a>
 						</td>
 
 					</tr>
@@ -50,17 +50,17 @@
 								<input href="sent.html"class="btn btn-primary btn-xl rounded-pill mt-5" 
 								role="button" 
 								style="width: 250px; background-color: black;" type="submit"  
-								value="SENT"></a>
+								value="SENT Messages"></a>
 						</td>
 					</tr>
 						
 					<tr>
 						<td>
-							<a href="trash.html"> 
-								<input href="trash.html"class="btn btn-primary btn-xl rounded-pill mt-5"
+							<a href="all_message.html"> 
+								<input href="all_message.html"class="btn btn-primary btn-xl rounded-pill mt-5"
 								role="button" 
 								style="width: 250px; background-color: black;"  type="submit" 
-								value="TRASH"></a>
+								value="All Message"></a>
 						</td>
 					</tr>
 					<tr>
@@ -80,14 +80,11 @@
 						
 		</div>
 			</div>
-			<div class="bg-circle-1 bg-circle"></div>
-			<div class="bg-circle-2 bg-circle"></div>
-			<div class="bg-circle-3 bg-circle"></div>
-			<div class="bg-circle-4 bg-circle"></div>
+			
 		</header>
 		<footer class="py-5 bg-black">
 			<div class="container">
-				<p class="text-center text-white m-0 small">Copyright&nbsp;© Voice Based Email&nbsp;</p>
+				<p class="text-center text-white m-0 small">Copyright&nbsp;© N&nbsp;</p>
 			</div>
 		</footer>
 	<script>
@@ -106,8 +103,8 @@
 			else if(data.result == 'inbox'){
 				window.location = "{% url 'homepage:inbox' %}";
 			}
-			else if(data.result == 'trash'){
-				window.location = "{% url 'homepage:trash' %}";
+			else if(data.result == 'all'){
+				window.location = "{% url 'homepage:all_message' %}";
 			}
 			else if(data.result == 'logout'){
 				window.location = "{% url 'homepage:login' %}";

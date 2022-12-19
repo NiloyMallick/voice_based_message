@@ -1,4 +1,3 @@
-
 from django.shortcuts import render, redirect
 from django.contrib import auth
 from . import forms
@@ -10,11 +9,6 @@ import os
 from playsound import playsound
 from django.http import HttpResponse
 import speech_recognition as sr
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 from django.http import JsonResponse
 import re
 from .models import *
@@ -24,13 +18,10 @@ file = "good"
 i="0"
 passwrd = ""
 addr = ""
-item =""
+item = ""
 subject = ""
 body = ""
-s = smtplib.SMTP('smtp.gmail.com', 587)
-s.starttls()
-imap_url = 'imap.gmail.com'
-conn = imaplib.IMAP4_SSL(imap_url)
+
 attachment_dir = 'C:/Users/Chacko/Desktop/'
 
 def texttospeech(text, filename):
@@ -91,19 +82,17 @@ def convert_special_char(text):
                     temp=temp.replace('dash','-')
     return temp
 
-
-
 def login_view(request):
     global i, addr, passwrd 
 
     if request.method == 'POST':
-        text1 = "Welcome to our Voice Based Email. Login with your email account in order to continue. "
+        text1 = "Welcome to our Voice Based Message Service Connect Blindly. Login with your User Name in order to continue. "
         texttospeech(text1, file + i)
         i = i + str(1)
 
         flag = True
         while (flag):
-            texttospeech("Enter your Email", file + i)
+            texttospeech("Enter your User Name", file + i)
             i = i + str(1)
             addr = speechtotext(10)
             
@@ -143,23 +132,7 @@ def login_view(request):
         passwrd = passwrd.replace(' ', '')
         passwrd = passwrd.lower()
         passwrd = convert_special_char(passwrd)
-        print(passwrd)
-
-        # imap_url = 'imap.gmail.com'
-        # passwrd = ''
-        #addr = ''
-        # conn = imaplib.IMAP4_SSL(imap_url)
-        # try:
-        #     conn.login(addr, passwrd)
-        #     s.login(addr, passwrd)
-        #     texttospeech("Congratulations. You have logged in successfully. You will now be redirected to the menu page.", file + i)
-        #     i = i + str(1)
-        #     return JsonResponse({'result' : 'success'})
-        # except:
-        #     texttospeech("Invalid Login Details. Please try again.", file + i)
-        #     i = i + str(1)
-        #     return JsonResponse({'result': 'failure'})
-        
+        print(passwrd)   
         try:
             user = auth.authenticate(username=addr, password=passwrd)
             auth.login(request, user)
@@ -170,7 +143,6 @@ def login_view(request):
             texttospeech("Invalid Login Details.")
             return JsonResponse({'result': 'failure'})
 
-    
     detail  = Details()
     detail.email = addr
     detail.password = passwrd
@@ -183,7 +155,7 @@ def options_view(request):
         texttospeech("You are logged into your account. What would you like to do ?", file + i)
         i = i + str(1)
         while(flag):
-            texttospeech("To compose an message say compose. To open Inbox folder say Inbox. To open Sent folder say Sent. To open Trash folder say Trash. To Logout say Logout. Do you want me to repeat?", file + i)
+            texttospeech("To Send an message say Send Message. To open Unread message say Chat. To See All Sent Message say Sent. To open All Message say All. To Logout say Logout. Do you want me to repeat?", file + i)
             i = i + str(1)
             say = speechtotext(3)
             if say == 'No' or say == 'no':
@@ -192,14 +164,14 @@ def options_view(request):
         i = i + str(1)
         act = speechtotext(5)
         act = act.lower()
-        if act == 'compose':
+        if act == 'send message':
             return JsonResponse({'result' : 'compose'})
-        elif act == 'inbox':
+        elif act == 'chat':
             return JsonResponse({'result' : 'inbox'})
         elif act == 'sent':
             return JsonResponse({'result' : 'sent'})
-        elif act == 'trash':
-            return JsonResponse({'result' : 'trash'})
+        elif act == 'all':
+            return JsonResponse({'result' : 'all'})
         elif act == 'log out':
             addr = ""
             passwrd = ""
@@ -348,13 +320,7 @@ def compose_view(request):
     compose.body = body
 
     return render(request, 'homepage/compose.html', {'compose' : compose})
-   
-def get_body(msg):
-    if msg.is_multipart():
-        return get_body(msg.get_payload(0))
-    else:
-        return msg.get_payload(None, True)
-
+  
 def get_attachment(msg):
     global i
     for part in msg.walk():
@@ -461,27 +427,22 @@ def frwd_mail(item, message):
             if act != 'yes':
                 flag = False
 
-def read_mails(mail_list,folder):
+def read_mails(mail_list):
     global s, i
     mail_list.reverse()
     mail_count = 0
     to_read_list = list()
     for item in mail_list:
-        result, email_data = conn.fetch(item, '(RFC822)')
-        raw_email = email_data[0][1].decode()
-        message = email.message_from_string(raw_email)
-        To = message['To']
-        From = message['From']
-        Subject = message['Subject']
-        Msg_id = message['Message-ID']
-        texttospeech("Email number " + str(mail_count + 1) + "    .The mail is from " + From + " to " + To + "  . The subject of the mail is " + Subject, file + i)
+        message_from= item.message_from
+        subject = item.subject
+        id =item.id
+        texttospeech("Message number" + str(mail_count+1) + " .Message from " + message_from.username + " .Subject" + subject, file + i)
         i = i + str(1)
-        print('message id= ', Msg_id)
-        print('From :', From)
-        print('To :', To)
-        print('Subject :', Subject)
+        print('message id= ', id)
+        print('From :', message_from)
+        print('Subject :', subject)
         print("\n")
-        to_read_list.append(Msg_id)
+        to_read_list.append(id)
         mail_count = mail_count + 1
 
     flag = True
@@ -489,7 +450,7 @@ def read_mails(mail_list,folder):
         n = 0
         flag1 = True
         while flag1:
-            texttospeech("Enter the email number of mail you want to read.",file + i)
+            texttospeech("Enter the Message number of mail you want to read.",file + i)
             i = i + str(1)
             n = speechtotext(2)
             print(n)
@@ -502,93 +463,17 @@ def read_mails(mail_list,folder):
         n = int(n)
         msgid = to_read_list[n - 1]
         print("message id is =", msgid)
-        typ, data = conn.search(None, '(HEADER Message-ID "%s")' % msgid)
-        data = data[0]
-        result, email_data = conn.fetch(data, '(RFC822)')
-        raw_email = email_data[0][1].decode()
-        message = email.message_from_string(raw_email)
-        To = message['To']
-        From = message['From']
-        Subject = message['Subject']
-        Msg_id = message['Message-ID']
-        print('From :', From)
-        print('To :', To)
-        print('Subject :', Subject)
-        texttospeech("The mail is from " + From + " to " + To + "  . The subject of the mail is " + Subject, file + i)
-        i = i + str(1)
-        Body = get_body(message)
-        Body = Body.decode()
-        Body = re.sub('<.*?>', '', Body)
-        Body = os.linesep.join([s for s in Body.splitlines() if s])
-        if Body != '':
-            texttospeech(Body, file + i)
-            i = i + str(1)
-        else:
-            texttospeech("Body is empty.", file + i)
-            i = i + str(1)
-        get_attachment(message)
-
-        if folder == 'inbox':
-            texttospeech("Do you want to reply to this mail? Say yes or no. ", file + i)
-            i = i + str(1)
-            ans = speechtotext(3)
-            ans = ans.lower()
-            print(ans)
-            if ans == "yes":
-                reply_mail(Msg_id, message)
-
-        if folder == 'inbox' or folder == 'sent':
-            texttospeech("Do you want to forward this mail to anyone? Say yes or no. ", file + i)
-            i = i + str(1)
-            ans = speechtotext(3)
-            ans = ans.lower()
-            print(ans)
-            if ans == "yes":
-                frwd_mail(Msg_id, message)
-
-
-        if folder == 'inbox' or folder == 'sent':
-            texttospeech("Do you want to delete this mail? Say yes or no. ", file + i)
-            i = i + str(1)
-            ans = speechtotext(3)
-            ans = ans.lower()
-            print(ans)
-            if ans == "yes":
-                try:
-                    conn.store(data, '+X-GM-LABELS', '\\Trash')
-                    conn.expunge()
-                    texttospeech("The mail has been deleted successfully.", file + i)
-                    i = i + str(1)
-                    print("mail deleted")
-                except:
-                    texttospeech("Sorry, could not delete this mail. Please try again later.", file + i)
-                    i = i + str(1)
-
-        if folder == 'trash':
-            texttospeech("Do you want to delete this mail? Say yes or no. ", file + i)
-            i = i + str(1)
-            ans = speechtotext(3)
-            ans = ans.lower()
-            print(ans)
-            if ans == "yes":
-                try:
-                    conn.store(data, '+FLAGS', '\\Deleted')
-                    conn.expunge()
-                    texttospeech("The mail has been deleted permanently.", file + i)
-                    i = i + str(1)
-                    print("mail deleted")
-                except:
-                    texttospeech("Sorry, could not delete this mail. Please try again later.", file + i)
-                    i = i + str(1)
-
-        texttospeech("Email ends here.", file + i)
-        i = i + str(1)
-        texttospeech("Do you want to read more mails?", file + i)
+        message = mail_list[n - 1]
+        texttospeech("Message from" + str(message_from.username) + "Subject" + str(message.subject) + "Message is" + message.messsage ,file + i)
+        message.seen= True
+        message.save()
+        texttospeech("Do you want to read more message?", file + i)
         i = i + str(1)
         ans = speechtotext(2)
         ans = ans.lower()
         if ans == "no":
             flag = False
+    return JsonResponse({'result': 'success'})
 
 def search_specific_mail(folder,key,value,foldername):
     global i, conn
@@ -685,160 +570,49 @@ def inbox_view(request):
 
 def sent_view(request):
     global i, addr, passwrd, conn
+    all_messages = Message.objects.filter(message_from__username=request.user).all()
+
     if request.method == 'POST':
-        imap_url = 'imap.gmail.com'
-        conn = imaplib.IMAP4_SSL(imap_url)
-        conn.login(addr, passwrd)
-        conn.select('"[Gmail]/Sent Mail"')
-        result1, data1 = conn.search(None, "ALL")
-        mail_list = data1[0].split()
-        text = "You have reached your sent mails folder. You have " + str(len(mail_list)) + " mails in your sent mails folder. To search a specific email say search. To go back to the menu page say back. To logout say logout."
-        texttospeech(text, file + i)
-        i = i + str(1)
-        flag = True
-        while (flag):
-            act = speechtotext(5)
-            act = act.lower()
-            print(act)
-            if act == 'search':
-                flag = False
-                emailid = ""
-                while True:
-                    texttospeech("Enter email ID of receiver.", file + i)
-                    i = i + str(1)
-                    emailid = speechtotext(15)
-                    texttospeech("You meant " + emailid + " say yes to confirm or no to enter again", file + i)
-                    i = i + str(1)
-                    yn = speechtotext(5)
-                    yn = yn.lower()
-                    if yn == 'yes':
-                        break
-                emailid = emailid.strip()
-                emailid = emailid.replace(' ', '')
-                emailid = emailid.lower()
-                emailid = convert_special_char(emailid)
-                search_specific_mail('"[Gmail]/Sent Mail"', 'TO', emailid,'sent')
-
-            elif act == 'back':
-                texttospeech("You will now be redirected to the menu page.", file + i)
-                i = i + str(1)
-                conn.logout()
-                return JsonResponse({'result': 'success'})
-
-            elif act == 'log out':
-                addr = ""
-                passwrd = ""
-                texttospeech("You have been logged out of your account and now will be redirected back to the login page.", file + i)
-                i = i + str(1)
-                return JsonResponse({'result': 'logout'})
-
-            else:
-                texttospeech("Invalid action. Please try again.", file + i)
-                i = i + str(1)
-
-            texttospeech("If you wish to do anything else in the sent mails folder or logout of your mail say yes or else say no.", file + i)
-            i = i + str(1)
-            ans = speechtotext(3)
-            ans = ans.lower()
-            if ans == 'yes':
-                flag = True
-                texttospeech("Enter your desired action. Say search, back or logout. ", file + i)
-                i = i + str(1)
-        texttospeech("You will now be redirected to the menu page.", file + i)
-        i = i + str(1)
-        conn.logout()
+        read_mails(all_messages)
         return JsonResponse({'result': 'success'})
-
     elif request.method == 'GET':
-        return render(request, 'homepage/sent.html')
+        return render(request, 'homepage/sent.html', {"message": all_messages})
 
-def trash_view(request):
+def all_message_view(request):
     global i, addr, passwrd, conn
+    all_messages = Message.objects.filter(message_to__username=request.user).all()
+    print(all_messages.count())
     if request.method == 'POST':
-        imap_url = 'imap.gmail.com'
-        conn = imaplib.IMAP4_SSL(imap_url)
-        conn.login(addr, passwrd)
-        conn.select('"[Gmail]/Trash"')
-        result1, data1 = conn.search(None, "ALL")
-        mail_list = data1[0].split()
-        text = "You have reached your trash folder. You have " + str(len(mail_list)) + " mails in your trash folder. To search a specific email say search. To go back to the menu page say back. To logout say logout."
-        texttospeech(text, file + i)
-        i = i + str(1)
-        flag = True
-        while (flag):
-            act = speechtotext(5)
-            act = act.lower()
-            print(act)
-            if act == 'search':
-                flag = False
-                emailid = ""
-                while True:
-                    texttospeech("Enter email ID of sender.", file + i)
-                    i = i + str(1)
-                    emailid = speechtotext(15)
-                    texttospeech("You meant " + emailid + " say yes to confirm or no to enter again", file + i)
-                    i = i + str(1)
-                    yn = speechtotext(5)
-                    yn = yn.lower()
-                    if yn == 'yes':
-                        break
-                emailid = emailid.strip()
-                emailid = emailid.replace(' ', '')
-                emailid = emailid.lower()
-                emailid = convert_special_char(emailid)
-                search_specific_mail('"[Gmail]/Trash"', 'FROM', emailid, 'trash')
-
-            elif act == 'back':
-                texttospeech("You will now be redirected to the menu page.", file + i)
-                i = i + str(1)
-                conn.logout()
-                return JsonResponse({'result': 'success'})
-
-            elif act == 'log out':
-                addr = ""
-                passwrd = ""
-                texttospeech(
-                    "You have been logged out of your account and now will be redirected back to the login page.",
-                    file + i)
-                i = i + str(1)
-                return JsonResponse({'result': 'logout'})
-
-            else:
-                texttospeech("Invalid action. Please try again.", file + i)
-                i = i + str(1)
-
-            texttospeech("If you wish to do anything else in the trash folder or logout of your mail say yes or else say no.", file + i)
-            i = i + str(1)
-            ans = speechtotext(3)
-            ans = ans.lower()
-            print(ans)
-            if ans == 'yes':
-                flag = True
-                texttospeech("Enter your desired action. Say search, back or logout. ", file + i)
-                i = i + str(1)
-        texttospeech("You will now be redirected to the menu page.", file + i)
-        i = i + str(1)
-        conn.logout()
-        return JsonResponse({'result': 'success'})
-    elif request.method == 'GET':
-        return render(request, 'homepage/trash.html')
-
-
-
-
+        print("comes here")
+    # return render(request, 'homepage/all_message.html', {"message": all_messages})
+        if (all_messages.count() >= 0):
+            read_mails(all_messages)
+            print("comes here gett")  
+        else:
+            print("comes here")
+            return JsonResponse({'result': 'success'})
+    if request.method == 'GET':
+        if (all_messages.count() >= 0):
+            read_mails(all_messages)
+            print("comes here gett")  
+        else:
+            print("comes here")
+            return JsonResponse({'result': 'success'})
+        return render(request, 'homepage/all_message.html', {"message": all_messages})
+        
 
 def group_create_view(request):
     global i, addr, passwrd, conn
     if request.method == 'POST':
-        text = "You have reached your create group page. Enter group member email to add group"
+        text = "You have reached your Send message page. Enter group member username to add group"
         texttospeech(text, file + i)
         i = i + str(1)
         flag = True
         flag1 = True
-        toaddr = ['c', 'b']
+        toaddr = ['bhai']
         while flag1:
             while flag:
-                texttospeech("enter receiver's email address:", file + i)
+                texttospeech("enter receiver's username address:", file + i)
                 i = i + str(1)
                 to = ""
                 to = speechtotext(15)
@@ -868,7 +642,7 @@ def group_create_view(request):
             item = convert_special_char(item)
             newtoaddr.append(item)
             print(item)
-        msg = {}
+
         flag = True
         while (flag):
             texttospeech("enter subject", file + i)
@@ -879,7 +653,7 @@ def group_create_view(request):
                 i = i + str(1)
             else:
                 flag = False
-        msg['Subject'] = subject
+        Subject = subject
         flag = True
         while flag:
             texttospeech("enter body of the message", file + i)
@@ -890,51 +664,35 @@ def group_create_view(request):
                 i = i + str(1)
             else:
                 flag = False
-            msg['Body'] = body
+        msg = body
+        print(msg)
+    
 
-            print(msg)
-        
-        msg = {
-            "Subjject" : "Test",
-            "Body" : "Hi there"
-        }
-
-        def adduser(name):
-            user= get_object_or_404(User.name == name)
-            print(user)
-
+        # def adduser(name):
+        #     user= get_object_or_404(User.username == name)
+        #     print(user)
+    
         try:
-            users = User.objects.filter(name__in=toaddr)
-            message = Message.objects.create(message_from=request.user, messsage=msg)
+            # login_user= User.objects.filter(username=request.user).first()
+            users = User.objects.filter(username__in=toaddr)
+            message = Message.objects.create(message_from=request.user, messsage=msg, subject=Subject)
             message.message_to.set(users)
-            # message.from_message = (request.user)
-            # message.messsage = msg
-            # message.save()
+
         except Exception as e:
             print(e)
 
         # message = Message.objects.create(from_message= request.user, to_message=User.objects.filter(name__in=toaddr), message=msg)
         return JsonResponse({'result': 'success'})
     elif request.method == 'GET':
-        return render(request, 'homepage/group.html')
-
-
-
-
+        return render(request, 'homepage/compose.html')
 
 def get_message(request):
     global i, addr, passwrd, conn
-    if request.method == 'POST':
-        text = "You have reached your create group page. Enter group member email to add group"
-        texttospeech(text, file + i)
-        i = i + str(1)
-        flag = True
-        flag1 = True
-        toaddr = ['c', 'b']
-        
-    
-        return JsonResponse({'result': 'success'})
-    elif request.method == 'GET':
-        x = Message.objects.filter(message_to__username='niloy').all()
-        return render(request, 'homepage/message.html', {"message": x})
+    all_messages = Message.objects.filter(message_to__username=request.user, seen = False ).all()
 
+    if request.method == 'POST':
+        read_mails(all_messages)
+        return JsonResponse({'result': 'success'})
+ 
+    elif request.method == 'GET': 
+        return render(request, 'homepage/message.html', {"message": all_messages})

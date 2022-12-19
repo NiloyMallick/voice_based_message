@@ -25,10 +25,25 @@ class Message(models.Model):
     id = models.AutoField(primary_key=True)
     message_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name= "message_from")
     message_to = models.ManyToManyField(User, related_name= "message_to")
-    messsage = models.JSONField()
+    messsage = models.CharField(max_length=1000)
+    subject = models.CharField(max_length=300, null=True)
+    seen=models.BooleanField(default=False)
+    
 
 
-# class UserMessage(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     name = models.CharField(max_length=100)
-    # messsage = models.JSONField() 
+
+
+# class Chat(models.Model):
+#     user1=models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_user1')
+#     user2=models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_user2')
+#     last_modified=models.DateTimeField(auto_now=True)
+
+
+
+# class Message(models.Model):
+#     time=models.DateTimeField(auto_now=True)
+#     chat=models.ForeignKey(Chat, on_delete=models.CASCADE)
+#     sender=models.ForeignKey(User, on_delete=models.CASCADE, related_name='messageSenderUser')
+#     receiver=models.ForeignKey(User, on_delete=models.CASCADE, related_name='messageReceiverUser')
+#     message=models.CharField(default='', blank=False, null=False, max_length=5000)
+#     seen=models.BooleanField(default=False)
