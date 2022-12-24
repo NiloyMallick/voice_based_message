@@ -1,7 +1,7 @@
 {% extends 'base_layout.html' %}
 
 {% block content %}
-	<body onmousedown = "GetAllMessage(event)">
+	<body onmousedown = "GetAllMessage(event)" style="background-image: url("{% static 'Images/bg.jpg' %}")">
 		<nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-dark navbar-custom">
 			<div class="container"><a class="navbar-brand" style="font-size:150%;">Connect Blindly</a>
 				
@@ -26,7 +26,7 @@
 					<tr>
 						
 						<td>{{m.message_from}}</td>
-						<td>{{m.subject}}</td>
+						<td>{{m.created_at}}</td>
 						<td>{{m.messsage}}</td>
 						
 					</tr>
