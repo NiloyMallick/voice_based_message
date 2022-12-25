@@ -13,6 +13,10 @@ from django.http import JsonResponse
 import re
 from .models import *
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
+
+
 
 file = "good"
 i="0"
@@ -690,3 +694,116 @@ def get_message(request):
  
     elif request.method == 'GET': 
         return render(request, 'homepage/message.html', {"message": all_messages})
+
+
+
+def signup_view(request):
+    global i, addr, passwrd, repasswrd
+    if request.method == 'POST':
+        text1 = "Welcome to our Voice Based Message Service Connect Blindly. Are you an existing User? Speek Yes or No"
+        texttospeech(text1, file + i)
+        i = i + str(1)
+        flag = True
+        while (flag):
+            addr = speechtotext(10)
+            print(addr)
+            
+            if addr == 'No' or 'no':
+                flag1 = True
+                while (flag1):
+                    texttospeech("Enter your User Name", file + i)
+                    i = i + str(1)
+                    username = speechtotext(10)
+
+                    if username != 'N':
+                        texttospeech("You meant " + username + " say yes to confirm or no to enter again", file + i)
+                        i = i + str(1)
+                        say = speechtotext(3)
+                        if say == 'yes' or say == 'Yes':
+                            flag1 = False
+                    else:
+                        texttospeech("could not understand what you meant:", file + i)
+                        i = i + str(1)
+                username = username.strip()
+                username = username.replace(' ', '')
+                username = username.lower()
+                username = convert_special_char(username)
+                
+            
+            elif addr == 'Yes' or 'yes':
+                flag = False
+                return JsonResponse({'result' : 'success'})
+
+            else:
+                text3 = "Couldnot Understand what you ment try again"
+                flag=False
+                texttospeech(text2, file + i)
+                i = i + str(1)
+
+
+            try:
+                user = User.objects.get(username = username)
+                text2 = "You are already an register user please login in order to continue."
+                texttospeech(text2, file + i)
+                i = i + str(1)
+                return JsonResponse({'result' : 'success'})
+                print(user)
+            except ObjectDoesNotExist:
+                while (flag):
+                    texttospeech("Enter your password", file + i)
+                    
+                    i = i + str(1)
+                    passwrd = speechtotext(10)
+                    
+                    if passwrd != 'N':
+                        texttospeech("You meant " + passwrd + " say yes to confirm or no to enter again", file + i)
+                        i = i + str(1)
+                        say = speechtotext(3)
+                        if say == 'yes' or say == 'Yes':
+                            flag = False
+                    else:
+                        texttospeech("could not understand what you meant:", file + i)
+                        i = i + str(1)
+                        
+                passwrd = passwrd.strip()
+                passwrd = passwrd.replace(' ', '')
+                passwrd = passwrd.lower()
+                passwrd = convert_special_char(passwrd)
+                print(passwrd)
+
+                flag3 = True
+                while (flag3):
+                    texttospeech("Re-Enter your password", file + i)
+                    i = i + str(1)
+                    repasswrd = speechtotext(10)
+                    
+                    if repasswrd != 'N':
+                        texttospeech("You meant " + repasswrd + " say yes to confirm or no to enter again", file + i)
+                        i = i + str(1)
+                        say = speechtotext(3)
+                        if say == 'yes' or say == 'Yes' or 'speak yes' or 'Speak Yes':
+                            flag3 = False
+                        
+                    else:
+                        texttospeech("could not understand what you meant:", file + i)
+                        i = i + str(1)
+                    repasswrd = repasswrd.strip()
+                    repasswrd = repasswrd.replace(' ', '')
+                    repasswrd = repasswrd.lower()
+                    repasswrd = convert_special_char(passwrd)
+                    print(repasswrd)
+
+                    if passwrd == repasswrd:
+                        user = User.objects.create_user(username=username, password = repasswrd)
+                        return JsonResponse({'result' : 'success'})
+
+                    else: 
+                        texttospeech("Password Didn't match Try Again", file + i)
+                        i = i + str(1)
+                    # auth.login(request, user)
+                        return JsonResponse({'result' : 'signup'})
+    
+    elif request.method == 'GET': 
+        return render(request, 'homepage/signup.html')
+
+        

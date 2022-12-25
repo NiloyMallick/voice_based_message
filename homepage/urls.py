@@ -4,7 +4,8 @@ from . import views
 app_name = 'homepage'
 
 urlpatterns = [
-    url(r'^$', views.login_view, name="login"),
+    url(r'^$', views.signup_view, name="signup"),
+    url(r'^login/$', views.login_view, name="login"),
     url(r'^compose/$', views.group_create_view, name="compose"),
     url(r'^inbox/$', views.get_message, name="inbox"),
     url(r'^sent/$', views.sent_view, name="sent"),
