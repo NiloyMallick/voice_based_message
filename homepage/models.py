@@ -26,7 +26,7 @@ class Message(models.Model):
     message_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name= "message_from")
     message_to = models.ManyToManyField(User, related_name= "message_to")
     messsage = models.CharField(max_length=1000)
-    subject = models.CharField(max_length=300, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     seen=models.BooleanField(default=False)
     
 
