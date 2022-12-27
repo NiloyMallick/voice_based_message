@@ -39,7 +39,7 @@
 								<input href="inbox.html"class="btn btn-primary btn-xl rounded-pill mt-5"
 								 role="button"
 								 style="width: 250px; background-color: black;" type="submit" 
-								value="Chat" ></a>
+								value="Unread Messages" ></a>
 						</td>
 
 					</tr>
@@ -50,7 +50,7 @@
 								<input href="sent.html"class="btn btn-primary btn-xl rounded-pill mt-5" 
 								role="button" 
 								style="width: 250px; background-color: black;" type="submit"  
-								value="SENT Messages"></a>
+								value="Past Messages Sent"></a>
 						</td>
 					</tr>
 						
@@ -110,9 +110,6 @@
 				window.location = "{% url 'homepage:login' %}";
 			}
 			else if(data.result == 'failure'){
-				window.location = "{% url 'homepage:options' %}";
-			}
-			else if(data.result == 'time'){
 				window.location = "{% url 'homepage:options' %}";
 			}
         }
