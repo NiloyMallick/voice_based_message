@@ -15,6 +15,7 @@ from .models import *
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
+from datetime import datetime, timedelta
 
 
 
@@ -159,7 +160,7 @@ def options_view(request):
         texttospeech("You are logged into your account. What would you like to do ?", file + i)
         i = i + str(1)
         while(flag):
-            texttospeech("To Send an message say Send Message. To open Unread message say Chat. To See All Sent Message say Sent. To open All Message say All. To Logout say Logout. Do you want me to repeat?", file + i)
+            texttospeech("To Send an message say Send Message. To open Unread message say Chat. To See All Sent Message say Sent. To open All Message say All. To know the current Time say time. To Logout say Logout. Do you want me to repeat? ", file + i)
             i = i + str(1)
             say = speechtotext(3)
             if say == 'No' or say == 'no':
@@ -176,6 +177,14 @@ def options_view(request):
             return JsonResponse({'result' : 'sent'})
         elif act == 'all':
             return JsonResponse({'result' : 'all'})
+        
+        elif act == 'time' or 'Time':
+            current = datetime.now()
+            formate_time = current.strftime("%H:%M")
+            time_text = "Current Time is" + str(formate_time )
+            texttospeech(time_text, file + i)
+            return JsonResponse({'result' : 'time'})
+
         elif act == 'log out':
             addr = ""
             passwrd = ""
