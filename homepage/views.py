@@ -447,13 +447,13 @@ def read_mails(mail_list):
     to_read_list = list()
     for item in mail_list:
         message_from= item.message_from
-        subject = item.subject
+        create_at = item.created_at
         id =item.id
-        texttospeech("Message number" + str(mail_count+1) + " .Message from " + message_from.username + " .Subject" + subject, file + i)
+        texttospeech("Message number" + str(mail_count+1) + " .Message from " + message_from.username , file + i)
         i = i + str(1)
         print('message id= ', id)
         print('From :', message_from)
-        print('Subject :', subject)
+        print(' :', subject)
         print("\n")
         to_read_list.append(id)
         mail_count = mail_count + 1
@@ -477,7 +477,7 @@ def read_mails(mail_list):
         msgid = to_read_list[n - 1]
         print("message id is =", msgid)
         message = mail_list[n - 1]
-        texttospeech("Message from" + str(message_from.username) + "Subject" + str(message.subject) + "Message is" + message.messsage ,file + i)
+        texttospeech("Message from" + str(message_from.username) + "time" + str(message.create_at) + "Message is" + message.messsage ,file + i)
         message.seen= True
         message.save()
         texttospeech("Do you want to read more message?", file + i)
@@ -596,21 +596,10 @@ def all_message_view(request):
     all_messages = Message.objects.filter(message_to__username=request.user).all()
     print(all_messages.count())
     if request.method == 'POST':
-        print("comes here")
-    # return render(request, 'homepage/all_message.html', {"message": all_messages})
-        if (all_messages.count() >= 0):
             read_mails(all_messages)
-            print("comes here gett")  
-        else:
-            print("comes here")
             return JsonResponse({'result': 'success'})
-    if request.method == 'GET':
-        if (all_messages.count() >= 0):
-            read_mails(all_messages)
-            print("comes here gett")  
-        else:
-            print("comes here")
-            return JsonResponse({'result': 'success'})
+    
+    elif request.method == 'GET': 
         return render(request, 'homepage/all_message.html', {"message": all_messages})
         
 

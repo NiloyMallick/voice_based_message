@@ -52,14 +52,14 @@
         url: "{% url 'homepage:get_message' %}",
         method: 'POST',
         data: { 'csrfmiddlewaretoken': '{{ csrf_token }}'},
-        // success: function (data) {
-		// 	if(data.result == 'success'){
-		// 		window.location = "{% url 'homepage:options' %}";
-		// 	}
-		// 	else if(data.result == 'logout'){
-		// 		window.location = "{% url 'homepage:login' %}";
-		// 	}
-        // }
+        success: function (data) {
+			if(data.result == 'success'){
+				window.location = "{% url 'homepage:options' %}";
+			}
+			else if(data.result == 'logout'){
+				window.location = "{% url 'homepage:login' %}";
+			}
+        }
     });
 	}
 	</script>

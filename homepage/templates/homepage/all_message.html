@@ -1,7 +1,7 @@
 {% extends 'base_layout.html' %}
 
 {% block content %}
-	<body onmousedown = "GetAllMessage(event)" style="background-image: url("{% static 'Images/bg.jpg' %}")">
+	<body onmousedown = "GetAllMessage(event)">
 		<nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-dark navbar-custom">
 			<div class="container"><a class="navbar-brand" style="font-size:150%;">Connect Blindly</a>
 				
@@ -15,7 +15,7 @@
 					<tr>
 					<th scope="col">From</th>
 					<!-- <th scope="col">Subject</th> -->
-					<th scope="col">Subject</th>
+					<th scope="col">Time</th>
 					<th scope="col">Message</th>
 					
 					
@@ -49,7 +49,7 @@
 	<script>
 	function GetAllMessage(event){
 		$.ajax({
-        url: "{% url 'homepage:get_message' %}",
+        url: "{% url 'homepage:all_message' %}",
         method: 'POST',
         data: { 'csrfmiddlewaretoken': '{{ csrf_token }}'},
         success: function (data) {
